@@ -1,0 +1,20 @@
+graph TD
+    A[PC 192.168.5.1] -->|HTTP/HTTPS| B[Server 172.5.5.5]
+    C[PC 192.168.5.2] -->|FTP| B
+    D[PC 192.168.5.3] -->|SMTP| B
+    D -->|POP3| B
+    D -->|IMAP| B
+    E[PC 192.168.5.4] -->|SSH| B
+    F[PC 192.168.5.5] -->|DNS| B
+
+    B -->|Port 80| G[HTTP]
+    B -->|Port 443| H[HTTPS]
+    B -->|Port 21| I[FTP]
+    B -->|Port 25| J[SMTP]
+    B -->|Port 110| K[POP3]
+    B -->|Port 143| L[IMAP]
+    B -->|Port 22| M[SSH]
+    B -->|Port 53| N[DNS]
+
+
+(Mermaid diagram for port)

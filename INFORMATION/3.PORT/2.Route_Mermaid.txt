@@ -1,0 +1,30 @@
+flowchart TD
+    subgraph Network
+        PC1["192.168.1.10"]
+        PC2["192.168.1.20"]
+    end
+
+    subgraph "Fortigate Firewall"
+        FW["Fortigate Firewall"]
+        port1["port1 (10.200.1.1)"]
+        port6["port6 (Wan-isp)"]
+    end
+
+    subgraph Internet
+        Google["Google (8.8.8.8)"]
+        Facebook["Facebook (31.13.79.35)"]
+    end
+
+    subgraph "Remote Network"
+        VPN_Server["172.16.30.10"]
+    end
+
+    PC1 -->|Traffic to Google| FW
+    PC2 -->|Traffic to VPN Server| FW
+    
+    FW -->|Default Route to 10.200.1.254| port1
+    port1 -->|Internet Gateway| Google
+    port1 -->|Internet Gateway| Facebook
+
+    FW -->|Specific Route to 17.16.20.2| port6
+    port6 -->|VPN/MPLS Network| VPN_Server
