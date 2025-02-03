@@ -1,0 +1,231 @@
+Partition Layout Example In Linux Based System:
+-----------------------------------------------
+Here's an example of how the partitions will look based on your 128GB drive:
+
+1.	/boot: 	1GB
+2.	/: 	25GB
+3.	/home: 	100GB
+4.	Swap: 	2GB
+
+
+
+Partition Table:
+---------------------------------------------------
+Partition	Size	Filesystem	Mount Point
+---------------------------------------------------
+/dev/sda1	1GB	ext4		/boot
+/dev/sda2	25GB	ext4		/
+/dev/sda3	100GB	ext4		/home
+/dev/sda4	2GB	swap		(none)
+---------------------------------------------------
+
+
+
+Key Directories Under / (Root) Directory
+---------------------------------------------------------------------------------------------------------------------------------
+Directory	Purpose									Common Files
+---------------------------------------------------------------------------------------------------------------------------------
+/bin		Essential system binaries (commands) for booting and repair.		ls, cp, mv, bash, cat
+/boot		Bootloader and kernel files.						vmlinuz, initrd.img, grub.cfg
+/dev		Device files representing hardware.					/dev/sda, /dev/null, /dev/tty
+/etc		System-wide configuration files.					fstab, passwd, network/interfaces
+/home		User home directories containing personal files and settings.		/home/user/Documents, /home/user/.bashrc
+/lib		Shared libraries and kernel modules for /bin and /sbin programs.	libc.so, libm.so, kernel modules
+/media		Mount points for removable devices (e.g., USB drives).			/media/usb, /media/cdrom
+/mnt		Temporary mount points for external filesystems.			/mnt/data, /mnt/backup
+/opt		Optional software and third-party application packages.			/opt/lampp, /opt/idea
+/proc		Virtual filesystem with system and process information.			/proc/cpuinfo, /proc/meminfo
+/root		Home directory for the root user.					/root/.bashrc, /root/.ssh
+/run		Runtime data, including system information and process IDs.		/run/systemd/, /run/utmp
+/sbin		System binaries for system administration (used mostly by root).	fsck, shutdown, reboot
+/srv		Data for services provided by the system (e.g., web, ftp).		/srv/www, /srv/ftp
+/sys		Virtual filesystem for kernel information and device control.		/sys/class, /sys/devices
+/tmp		Temporary files created by programs and the system.			Temporary files by applications
+/usr		User applications and utilities (non-essential, can be shared).		/usr/bin, /usr/lib, /usr/share
+/var		Variable data files such as logs, spool files, and cache.		/var/log, /var/mail, /var/cache
+---------------------------------------------------------------------------------------------------------------------------------
+
+
+Key Directories Under /boot Directory
+------------------------------------------------------------------------------------------------------------------
+Directory		Purpose	Common Files
+------------------------------------------------------------------------------------------------------------------
+/boot/grub		Contains GRUB bootloader configuration files.	grub.cfg, grubenv
+/boot/vmlinuz-*		Contains Linux kernel images.	vmlinuz-5.4.0-42-generic
+/boot/initrd.img-*	Contains the initial RAM filesystem used for booting.	initrd.img-5.4.0-42-generic
+/boot/config-*		Contains kernel configuration files.	config-5.4.0-42-generic
+/boot/System.map-*	Contains kernel symbol maps for debugging.	System.map-5.4.0-42-generic
+------------------------------------------------------------------------------------------------------------------
+
+
+Summary
+-------
+/ (Root): Contains all essential system files, configurations, and user data.
+/boot:	  Contains files needed for system boot, including the bootloader (GRUB), kernel, and initramfs.
+
+
+
+Example to mount:
+-----------------
+>	sudo fdisk /dev/sda
+
+> 	Type "n" 
+
+> 	sudo mkfs.ext4 /dev/sda1	(For /boot (1GB)) 
+>	sudo mkfs.ext4 /dev/sda2	(For / (25GB))
+>	sudo mkfs.ext4 /dev/sda3	(For /home (100GB))
+>	sudo mkswap /dev/sda4		(For swap (2GB))
+
+
+>	sudo mount /dev/sda1 /mnt/boot   (Mount the partitions /boot)
+>	sudo mount /dev/sda2 /mnt 	 (Mount /) root 
+>	sudo mount /dev/sda3 /mnt/home	 (Mount /home)
+>	sudo swapon /dev/sda4		 (Activate Swap)
+
+
+> 	Once all partitions are created, type  "w" to write the changes.
+
+
+
+>	Update the /etc/fstab
+>	You’ll need to add the partitions to /etc/fstab so that they are mounted automatically at boot.
+>	After editing /etc/fstab, run the following to test the mounts:
+
+
+
+
+Config the Fstab (/etc/fstab):
+------------------------------
+>	sudo blkid 	(To find the UUID for each partition)
+output:
+	/dev/sda1: UUID="abc1234d-56e7-89f0-gh12-34ijkl56mnop" TYPE="ext4" PARTLABEL="boot" PARTUUID="abcd-1234"
+	/dev/sda2: UUID="9876xyz-1234-5678-90ab-cdefghijklmn" TYPE="ext4" PARTLABEL="root" PARTUUID="abcd-5678"
+	/dev/sda3: UUID="qwerty1234-5678-90ab-cdefghijklmnop" TYPE="ext4" PARTLABEL="home" PARTUUID="abcd-9012"
+	/dev/sda4: UUID="abcd9876-1234-5678-90ab-cdefghijklmn" TYPE="swap" PARTLABEL="swap" PARTUUID="abcd-3456"
+
+>	Configure /etc/fstab using UUID's
+output:
+	# <file system>    			   <mount point>   <type>   <options>      <dump>  <pass>
+	UUID=abc1234d-56e7-89f0-gh12-34ijkl56mnop   /boot           ext4    defaults       0       2
+	UUID=9876xyz-1234-5678-90ab-cdefghijklmn    /               ext4    defaults       0       1
+	UUID=qwerty1234-5678-90ab-cdefghijklmnop    /home   	    ext4    defaults       0       2
+	UUID=abcd9876-1234-5678-90ab-cdefghijklmn   none    	    swap    sw             0       0
+
+
+
+Output of "df -h"
+----------------
+>	df -h
+output:
+Filesystem               Size  Used Avail Use%  Mounted on
+/dev/sda1                1.0G  150M  850M  15%  /boot
+/dev/sda2                25G   5.2G  19.8G  22% /
+/dev/sda3                100G  25G   75G   25%  /home
+/dev/sda4                 2G   4.0K   2G    1%  none
+tmpfs                    3.8G  200M  3.6G   5%  /tmp
+
+-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x
+
+
+
+Encrypt Partitions:
+------------------
+Detailed Partition Layout and /etc/fstab Configuration
+------------------------------------------------------
+The total space is 128 GB, which will be divided as follows:
+
+--------------------------------------------------------------------------------------------------------
+Partition	Size	Filesystem	Mount Point	Encryption	Purpose
+--------------------------------------------------------------------------------------------------------
+/dev/sda1	512 MB	FAT32		/boot/efi	No		EFI System Partition (ESP)
+/dev/sda2	30 GB	ext4		/		Yes		Encrypted root partition (LUKS)
+/dev/sda3	70 GB	ext4		/home		Yes		Encrypted home partition (LUKS)
+/dev/sda4	8 GB	swap		none		Yes		Encrypted swap partition
+--------------------------------------------------------------------------------------------------------
+
+
+Encrypt /dev/sda2 (root partition): Use cryptsetup to encrypt the root partition:
+>	sudo cryptsetup luksFormat /dev/sda2
+>	sudo cryptsetup luksOpen /dev/sda2 root
+
+
+Encrypt /dev/sda3 (home partition): Similarly, encrypt the /home partition:
+>	sudo cryptsetup luksFormat /dev/sda3
+>	sudo cryptsetup luksOpen /dev/sda3 home
+
+
+Format the root and home partition
+>	sudo mkfs.ext4 /dev/mapper/root
+>	sudo mkfs.ext4 /dev/mapper/home
+
+
+Mount the root and home partition:
+>	sudo mount /dev/mapper/root /mnt
+>	sudo mkdir /mnt/home
+>	sudo mount /dev/mapper/home /mnt/home
+
+
+Run blkid:
+----------
+>	sudo blkid
+output:
+	/dev/sda1: LABEL="EFI" UUID="1234-ABCD" TYPE="vfat" PARTUUID="a21fa13b-34b6-35b4-69bb-92e6f5a90e01"
+	/dev/sda2: UUID="abcd-1234" TYPE="crypto_LUKS" PARTUUID="ab7bd515-aed4-401e-9103-f1312159f735"
+	/dev/sda3: UUID="fceefd88-eecb-4976-8f72-6da26159e950" TYPE="crypto_LUKS" PARTUUID="ab7bd515-aed4-401e-9103-f1312159f735"
+	/dev/sda4: UUID="5678-XYZ" TYPE="swap" PARTUUID="ab7bd515-aed4-401e-9103-f1312159f735"
+	/dev/mapper/root: UUID="1234-ABCD" TYPE="ext4"
+	/dev/mapper/home: UUID="5678-XYZ" TYPE="ext4"
+
+
+/etc/fstab Configuration
+------------------------
+>	sudo nano /etc/fstab
+output:
+	
+	# /etc/fstab: static file system information.
+	# <file system>                          <mount point>    <type>      <options>           <dump>  <pass>
+
+	# EFI System Partition
+	UUID=1234-ABCD                          /boot/efi        vfat        defaults            0       1
+
+	# Encrypted root partition (LUKS)
+	/dev/mapper/root                        /                ext4        defaults            0       1
+
+	# Encrypted home partition (LUKS)
+	/dev/mapper/home                        /home            ext4        defaults            0       2
+
+	# Swap partition (LUKS)
+	/dev/mapper/swap                        none             swap        sw                   0       0
+
+
+
+>	df -h
+output:
+	Filesystem                 Size  Used   Avail	 Use%	 Mounted on
+	/dev/mapper/root            30G   5G     25G     17% 	/
+	/dev/mapper/home            100G  10G    90G     10% 	/home
+	/dev/sda1                   512M  100M   412M    20% 	/boot/efi
+	tmpfs                        2G  1.1G    900M    54% 	/tmp
+	/dev/mapper/swap            2G    0      2G      0%   	[SWAP]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
